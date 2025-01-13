@@ -1,3 +1,14 @@
+-- ESP Logic Functions
+local ESPObjects = {} -- Table to store drawn ESP objects
+
+local showNameTags = false
+local showHealthBars = false
+local outlineThickness = 1
+local boxColor = Color3.fromRGB(0, 255, 0) -- Default green
+local nameTagColor = Color3.fromRGB(255, 255, 255) -- Default white
+local showTeammates = true
+local showAliveOnly = true
+
 -- ESP Logic for Player Checks
 function updateESP()
 -- Clear previous ESP

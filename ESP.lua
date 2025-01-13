@@ -1,9 +1,13 @@
 --// ESP Module
 local ESP = {}
 
+--// Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
 --// Settings
 ESP.Settings = {
-    Enabled = false,
+    Enabled = true,
     ShowTeam = false,
     ShowEnemies = true,
     EnemyColor = Color3.new(1, 0, 0),
@@ -12,27 +16,32 @@ ESP.Settings = {
     Transparency = 0.7
 }
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 --// Helper Functions
 local function CreateESP(player)
+    -- Ensure player and character exist
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
         return
     end
 
-    -- Create a BillboardGui for the player
+    -- Check if ESP already exists
+    if player.Character:FindFirstChild("ESP_Billboard") then
+        return
+    end
+
+    -- Create BillboardGui
     local billboard = Instance.new("BillboardGui")
-    billboard.Adornee = player.Character.HumanoidRootPart
+    billboard.Name = "ESP_Billboard"
+    billboard.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
     billboard.Size = UDim2.new(4, 0, 4, 0)
     billboard.AlwaysOnTop = true
 
-    -- Create a Frame inside the BillboardGui
+    -- Create Frame inside BillboardGui
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 1, 0)
     frame.BackgroundTransparency = ESP.Settings.Transparency
     frame.BorderSizePixel = 0
 
+    -- Determine color based on team
     if player.Team == Players.LocalPlayer.Team and ESP.Settings.ShowTeam then
         frame.BackgroundColor3 = ESP.Settings.TeamColor
     elseif ESP.Settings.ShowEnemies then
@@ -42,17 +51,14 @@ local function CreateESP(player)
         return
     end
 
+    -- Parent the frame
     frame.Parent = billboard
     billboard.Parent = player.Character
 end
 
 local function RemoveESP(player)
-    if player.Character then
-        for _, v in pairs(player.Character:GetChildren()) do
-            if v:IsA("BillboardGui") then
-                v:Destroy()
-            end
-        end
+    if player.Character and player.Character:FindFirstChild("ESP_Billboard") then
+        player.Character.ESP_Billboard:Destroy()
     end
 end
 
@@ -60,21 +66,30 @@ end
 function ESP.Initialize()
     if not ESP.Settings.Enabled then return end
 
-    for _, player in pairs(Players:GetPlayers()) do
+    -- Create ESP for existing players
+    for _, player in ipairs(Players:GetPlayers()) do
         if player ~= Players.LocalPlayer then
             CreateESP(player)
         end
     end
 
-    -- Update ESP when players join or leave
-    Players.PlayerAdded:Connect(CreateESP)
+    -- Handle new players joining
+    Players.PlayerAdded:Connect(function(player)
+        player.CharacterAdded:Connect(function()
+            CreateESP(player)
+        end)
+    end)
+
+    -- Handle players leaving
     Players.PlayerRemoving:Connect(RemoveESP)
 
     -- Update ESP every frame
     RunService.RenderStepped:Connect(function()
-        for _, player in pairs(Players:GetPlayers()) do
+        for _, player in ipairs(Players:GetPlayers()) do
             if player ~= Players.LocalPlayer then
-                CreateESP(player)
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    CreateESP(player)
+                end
             end
         end
     end)

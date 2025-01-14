@@ -26,9 +26,6 @@
 - **Customizable Health Bars**: Toggle visibility for health bars above players.
 - **Health Bar Color**: Distinct colors for health bars (e.g., green for full health, red for low health).
   
-### **Stream-Safe Mode**
-- **Stream-Safe Mode**: A toggle option allowing streamers to hide the ESP from viewers but still view it on their screen, ensuring a clean, professional stream setup.
-
 ### **Customization Options**
 - **Health Bar Toggle**: Enable or disable health bars on the players/objects.
 - **Bounding Box Toggle**: Enable or disable bounding boxes, allowing for a cleaner display.
